@@ -27,6 +27,7 @@ router.get('/', function(req, res, next) {
 	});
 });
 
+// Single Movie
 router.get('/movie/:id', (req, res, next) => {
 	const movieId = req.params.id;
 	const movieUrl = `${apiBaseUrl}/movie/${movieId}?api_key=${apiKey}`;
@@ -39,6 +40,25 @@ router.get('/movie/:id', (req, res, next) => {
 		} else {
 			res.render('error');
 		}
+	});
+});
+
+// Search
+router.post('/search', (req, res, next) => {
+	const userSearchTerm = encodeURI(req.body.movieSearch);
+	const cat = req.body.cat;
+	const movieUrl = `${apiBaseUrl}/search/${cat}?query=${userSearchTerm}&api_key=${apiKey}`;
+
+	request(movieUrl, (err, response, body) => {
+		const parsedData = JSON.parse(body);
+
+		if (cat == 'person') {
+			parsedData.results = parsedData.results[0].known_for;
+		}
+
+		res.render('index', {
+			moviesList: parsedData.results
+		});
 	});
 });
 
